@@ -1,16 +1,30 @@
 library('tidyverse')
 library('bnlearn')
+library('here')
 
-alm <- alarm
+args = commandArgs(trailingOnly=TRUE)
 
-nb <- naive.bayes(alm, "CVP")
+args
+
+file_dir <- here()
+csv_path <- file.path(file_dir,"tokenized_train_imdb.csv")
+
+df <- read.table(csv_path, header=TRUE, sep=',')
+df <- select(df, -X)
+df <- df[sample(nrow(df)),]
+df[colnames(df)] <- lapply(df[colnames(df)], factor)
 
 
+train <- head(df,18000)
 
-y <- head(alm[2:37], 20)
+test <- tail(df,1261)
 
-fitted <- bn.fit(nb, alm)
+nb <- naive.bayes(train, "class")
 
-pred <- predict(fitted, y, prob=TRUE)
+fitted <- bn.fit(nb, train)
 
-table(pred,alm[1][1:20,])
+pred <- predict(fitted, train, prob=TRUE)
+
+n <- length(pred)
+
+
