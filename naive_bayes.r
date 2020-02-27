@@ -19,13 +19,12 @@ if(length(args) > 1){
 train <- read.table(train_path, header=TRUE, sep=',')
 train <- mutate_all(train, sign)
 train <- select(train, -X)
-train <- train[sample(nrow(train)),]
 train[colnames(train)] <- lapply(train[colnames(train)], factor)
 
 test <- read.table(test_path, header=TRUE, sep=',')
 test <- mutate_all(test, sign)
-test <- select(test, -X)
-test <- test[sample(nrow(test)),]
+test_class <- test$class
+test <- select(test, -X, -class)
 test[colnames(test)] <- lapply(test[colnames(test)], factor)
 
 nb <- naive.bayes(train, "class")
@@ -36,5 +35,11 @@ pred <- predict(fitted, test, prob=TRUE)
 
 n <- length(pred)
 
-sum(test[,'class'] == pred[1:n])/n
+#sum(test_class == pred[1:n])/n
 
+if(length(args) > 2){
+  pred_path <- file.path(file_dir,paste("preds_",args[3],".csv",sep=""))
+  prob_path <- file.path(file_dir,paste("probs_",args[3],".csv",sep=""))
+  write.csv(pred[1:n],pred_path)
+  write.csv(attr(pred,'prob'),prob_path)
+}
