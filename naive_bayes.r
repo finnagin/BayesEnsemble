@@ -4,21 +4,29 @@ library('here')
 
 args = commandArgs(trailingOnly=TRUE)
 
-args
-
 file_dir <- here()
-csv_path <- file.path(file_dir,"tokenized_train_imdb.csv")
+if(length(args) > 0){
+  train_path <- file.path(file_dir,args[1])
+} else {
+  train_path <- file.path(file_dir,"tokenized_train_imdb.csv")
+}
+if(length(args) > 1){
+  test_path <- file.path(file_dir,args[2])
+} else {
+  test_path <- file.path(file_dir,"tokenized_test_imdb.csv")
+}
 
-df <- read.table(csv_path, header=TRUE, sep=',')
-df <- mutate_all(df, sign)
-df <- select(df, -X)
-df <- df[sample(nrow(df)),]
-df[colnames(df)] <- lapply(df[colnames(df)], factor)
+train <- read.table(train_path, header=TRUE, sep=',')
+train <- mutate_all(train, sign)
+train <- select(train, -X)
+train <- train[sample(nrow(train)),]
+train[colnames(train)] <- lapply(train[colnames(train)], factor)
 
-
-train <- head(df,18000)
-
-test <- tail(df,1261)
+test <- read.table(test_path, header=TRUE, sep=',')
+test <- mutate_all(test, sign)
+test <- select(test, -X)
+test <- test[sample(nrow(test)),]
+test[colnames(test)] <- lapply(test[colnames(test)], factor)
 
 nb <- naive.bayes(train, "class")
 
@@ -29,3 +37,4 @@ pred <- predict(fitted, test, prob=TRUE)
 n <- length(pred)
 
 sum(test[,'class'] == pred[1:n])/n
+
