@@ -1,4 +1,3 @@
-
 library('tidyverse')
 library('bnlearn')
 library('here')
@@ -6,7 +5,7 @@ library('here')
 file_dir <- here()
 
 set_level <- function(x, n = 2){levels(x) <- as.character(0:(n-1)) 
-        return(x)
+return(x)
 }
 
 file_path <- file.path(file_dir,"all_tokenized_data_unique_ids.zip")
@@ -115,13 +114,13 @@ s140_test <- s140_test %>%
   rename(class = V985) %>%
   mutate_all(as.factor) %>%
   mutate_all(set_level)
-  
+
 print('training models')
 
-data_dir <- file.path(file_dir,"data","naive")
+data_dir <- file.path(file_dir,"data","tan")
 
 for(i in 1:10){
-  nb <- naive.bayes(train[[i]], "class")
+  nb <- tree.bayes(train[[i]], "class")
   fitted <- bn.fit(nb, train[[i]])
   
   pred <- predict(fitted, amazon, prob=TRUE)
@@ -206,9 +205,10 @@ for(i in 1:10){
   print(i)
 }
 
-write.csv(amazon_df,file.path(data_dir,paste('amazon_prob_naive.csv',sep='')))
-write.csv(yelp_df,file.path(data_dir,paste('yelp_prob_naive.csv',sep='')))
-write.csv(roberta_imdb_df,file.path(data_dir,paste('roberta_imdb_prob_naive.csv',sep='')))
-write.csv(roberta_s140_df,file.path(data_dir,paste('roberta_s140_prob_naive.csv',sep='')))
-write.csv(imdb_test_df,file.path(data_dir,paste('imdb_test_prob_naive.csv',sep='')))
-write.csv(s140_test_df,file.path(data_dir,paste('s140_test_prob_naive.csv',sep='')))
+write.csv(amazon_df,file.path(data_dir,paste('amazon_prob_tan_',as.character(i),'.csv',sep='')))
+write.csv(yelp_df,file.path(data_dir,paste('yelp_prob_tan_',as.character(i),'.csv',sep='')))
+write.csv(roberta_imdb_df,file.path(data_dir,paste('roberta_imdb_prob_tan_',as.character(i),'.csv',sep='')))
+write.csv(roberta_s140_df,file.path(data_dir,paste('roberta_s140_prob_tan_',as.character(i),'.csv',sep='')))
+write.csv(imdb_test_df,file.path(data_dir,paste('imdb_test_prob_tan_',as.character(i),'.csv',sep='')))
+write.csv(s140_test_df,file.path(data_dir,paste('s140_test_prob_tan_',as.character(i),'.csv',sep='')))
+
