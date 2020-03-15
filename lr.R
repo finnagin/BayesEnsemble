@@ -3,13 +3,15 @@ library('bnlearn')
 library('here')
 library('glmnetUtils')
 
+ptm <- proc.time()
+
 file_dir <- here()
 
 set_level <- function(x, n = 2){levels(x) <- as.character(0:(n-1)) 
 return(x)
 }
 
-file_path <- file.path(file_dir,"all_tokenized_data_unique_ids.zip")
+file_path <- file.path(file_dir,"newest_all_tokenized_data.zip")
 
 print('loading data')
 
@@ -112,35 +114,90 @@ print('training models')
 
 data_dir <- file.path(file_dir,"data","lr")
 
+training_time <- proc.time() - proc.time()
+testing_time <- proc.time() - proc.time()
+
+amazon_acc <- 0
+yelp_acc <- 0
+roberta_imdb_acc <- 0
+roberta_s140_acc <- 0
+imdb_test_acc <- 0
+s140_test_acc <- 0
+
+
+
 for(i in 1:10){
+  ptm <- proc.time()
   fitted <- glmnet(class~., data = train[[i]], family = 'binomial')
   
+  training_time <- training_time + (proc.time() - ptm)
+  ptm <- proc.time()
+  
   prob <- predict(fitted, amazon, type='response')
+  pred <- floor(prob[,ncol(prob)]+.5)
+  amazon_acc <- amazon_acc + sum(pred[1:length(amazon$class)] == amazon$class)/length(amazon$class)
   amazon_df <- add_column(amazon_df, !!as.character(i):=prob[,ncol(prob)])
   rm(prob)
+  rm(pred)
   
   prob <- predict(fitted, yelp, type='response')
+  pred <- floor(prob[,ncol(prob)]+.5)
+  yelp_acc <- yelp_acc + sum(pred[1:length(yelp$class)] == yelp$class)/length(yelp$class)
   yelp_df <- add_column(yelp_df, !!as.character(i):=prob[,ncol(prob)])
   rm(prob)
+  rm(pred)
   
   prob <- predict(fitted, roberta_imdb, type='response')
+  pred <- floor(prob[,ncol(prob)]+.5)
+  roberta_imdb_acc <- roberta_imdb_acc + sum(pred[1:length(roberta_imdb$class)] == roberta_imdb$class)/length(roberta_imdb$class)
   roberta_imdb_df <- add_column(roberta_imdb_df, !!as.character(i):=prob[,ncol(prob)])
   rm(prob)
+  rm(pred)
   
   prob <- predict(fitted, roberta_s140, type='response')
+  pred <- floor(prob[,ncol(prob)]+.5)
+  roberta_s140_acc <- roberta_s140_acc + sum(pred[1:length(roberta_s140$class)] == roberta_s140$class)/length(roberta_s140$class)
   roberta_s140_df <- add_column(roberta_s140_df, !!as.character(i):=prob[,ncol(prob)])
   rm(prob)
+  rm(pred)
   
   prob <- predict(fitted, imdb_test, type='response')
+  pred <- floor(prob[,ncol(prob)]+.5)
+  imdb_test_acc <- imdb_test_acc + sum(pred[1:length(imdb_test$class)] == imdb_test$class)/length(imdb_test$class)
   imdb_test_df <- add_column(imdb_test_df, !!as.character(i):=prob[,ncol(prob)])
   rm(prob)
+  rm(pred)
   
   prob <- predict(fitted, s140_test, type='response')
+  pred <- floor(prob[,ncol(prob)]+.5)
+  s140_test_acc <- s140_test_acc + sum(pred[1:length(s140_test$class)] == s140_test$class)/length(s140_test$class)
   s140_test_df <- add_column(s140_test_df, !!as.character(i):=prob[,ncol(prob)])
   rm(prob)
+  rm(pred)
   
   print(i)
+  testing_time <- testing_time + (proc.time() - ptm)
 }
+
+amazon_acc <- amazon_acc/i
+yelp_acc <- yelp_acc/i
+roberta_imdb_acc <- roberta_imdb_acc/i
+roberta_s140_acc <- roberta_s140_acc/i
+imdb_test_acc <- imdb_test_acc/i
+s140_test_acc <- s140_test_acc/i
+
+print("amazon_acc:")
+print(amazon_acc)
+print("yelp_acc:")
+print(yelp_acc)
+print("roberta_imdb_acc:")
+print(roberta_imdb_acc)
+print("roberta_s140_acc:")
+print(roberta_s140_acc)
+print("imdb_test_acc:")
+print(imdb_test_acc)
+print("s140_test_acc:")
+print(s140_test_acc)
 
 write.csv(amazon_df,file.path(data_dir,paste('amazon_prob_lr.csv',sep='')))
 write.csv(yelp_df,file.path(data_dir,paste('yelp_prob_lr.csv',sep='')))
@@ -148,3 +205,10 @@ write.csv(roberta_imdb_df,file.path(data_dir,paste('roberta_imdb_prob_lr.csv',se
 write.csv(roberta_s140_df,file.path(data_dir,paste('roberta_s140_prob_lr.csv',sep='')))
 write.csv(imdb_test_df,file.path(data_dir,paste('imdb_test_prob_lr.csv',sep='')))
 write.csv(s140_test_df,file.path(data_dir,paste('s140_test_prob_lr.csv',sep='')))
+
+
+print('training time:')
+print(training_time)
+
+print('testing time:')
+print(testing_time)
