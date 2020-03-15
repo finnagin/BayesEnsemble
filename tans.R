@@ -205,10 +205,10 @@ for(i in 1:10){
   print(i)
 }
 
-write.csv(amazon_df,file.path(data_dir,paste('amazon_prob_tan_',as.character(i),'.csv',sep='')))
-write.csv(yelp_df,file.path(data_dir,paste('yelp_prob_tan_',as.character(i),'.csv',sep='')))
-write.csv(roberta_imdb_df,file.path(data_dir,paste('roberta_imdb_prob_tan_',as.character(i),'.csv',sep='')))
-write.csv(roberta_s140_df,file.path(data_dir,paste('roberta_s140_prob_tan_',as.character(i),'.csv',sep='')))
-write.csv(imdb_test_df,file.path(data_dir,paste('imdb_test_prob_tan_',as.character(i),'.csv',sep='')))
-write.csv(s140_test_df,file.path(data_dir,paste('s140_test_prob_tan_',as.character(i),'.csv',sep='')))
+write.csv(amazon_df,file.path(data_dir,paste('amazon_prob_tan.csv',sep='')))
+write.csv(yelp_df,file.path(data_dir,paste('yelp_prob_tan.csv',sep='')))
+write.csv(roberta_imdb_df,file.path(data_dir,paste('roberta_imdb_prob_tan.csv',sep='')))
+write.csv(roberta_s140_df,file.path(data_dir,paste('roberta_s140_prob_tan.csv',sep='')))
+write.csv(imdb_test_df,file.path(data_dir,paste('imdb_test_prob_tan.csv',sep='')))
+write.csv(s140_test_df,file.path(data_dir,paste('s140_test_prob_tan.csv',sep='')))
 
